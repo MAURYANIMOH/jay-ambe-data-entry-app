@@ -40,7 +40,7 @@ jobs:
       - name: Install and build
         run: |
           cd "$APP_DIR"
-          npm install
+          npm install --legecy-peer-deps
           npm install @capacitor/android@^7.4.3
           npm run build
           npx cap add android
