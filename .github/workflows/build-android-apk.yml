@@ -40,11 +40,15 @@ jobs:
       - name: Install and build
         run: |
           cd "$APP_DIR"
+          mkdir -p assets
+          cp ../../jay-ambe-app-icon.png assets/logo.png
           npm install --legacy-peer-deps
           npm install --save-dev "typescript@npm:@typescript/typescript6@^6.0.2" --legacy-peer-deps
           npm install @capacitor/android@^7.4.3 --legacy-peer-deps
+          npm install --save-dev @capacitor/assets --legacy-peer-deps
           npm run build
           npx cap add android
+          npx @capacitor/assets generate --android
           npx cap sync android
 
       - name: Build APK
