@@ -41,8 +41,7 @@ jobs:
         run: |
           cd "$APP_DIR"
           npm install --legacy-peer-deps
-          npm install @capacitor/android@^7.4.3 --legacy-peer-deps
-          npm run build
+          npm install --save-dev typescript@6.0.3 --legacy-peer-deps
           npx cap add android
           npx cap sync android
 
