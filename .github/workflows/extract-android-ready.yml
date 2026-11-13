@@ -1,0 +1,31 @@
+name: Extract Android Ready Project
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/extract-android-ready.yml"
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Extract Android ready archive
+        run: |
+          set -e
+          mkdir -p /tmp/jay-android
+          unzip -q jay-ambe-data-entry-app-android-ready.zip -d /tmp/jay-android
+          rm -rf android-ready-extracted
+          mkdir -p android-ready-extracted
+          cp -a /tmp/jay-android/. android-ready-extracted/
+          find android-ready-extracted -maxdepth 4 -type f | head -200
+      - name: Commit extracted Android project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android-ready-extracted
+          git commit -m "Extract Android-ready project for integration" || exit 0
+          git push
