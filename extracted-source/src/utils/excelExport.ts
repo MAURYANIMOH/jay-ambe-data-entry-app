@@ -310,6 +310,52 @@ export async function exportAllDataToExcel(): Promise<void> {
     Object.assign(cell, headerStyle);
   });
 
+  // ==========================================
+  // SHEET 6: CUSTOM FIELD VALUES
+  // ==========================================
+  const customFieldDefinitions = await Promise.all([
+    dbService.getCustomFields('RETAIL_SHOP'),
+    dbService.getCustomFields('MECHANIC'),
+    dbService.getCustomFields('REBORER'),
+    dbService.getCustomFields('ID_DATA'),
+  ]);
+  const customFieldNameMaps = customFieldDefinitions.map((fields) =>
+    new Map(fields.map((field) => [field.id, field.name]))
+  );
+  const wsCustom = workbook.addWorksheet('Custom Fields', {
+    views: [{ showGridLines: true }],
+  });
+  wsCustom.columns = [
+    { header: 'Category', key: 'category', width: 18 },
+    { header: 'Record ID', key: 'recordId', width: 28 },
+    { header: 'Field Name', key: 'fieldName', width: 28 },
+    { header: 'Value', key: 'value', width: 42 },
+  ];
+  const customRows = [
+    ...shops.map((record) => ({ category: 'Retail Shop', record, names: customFieldNameMaps[0] })),
+    ...mechanics.map((record) => ({ category: 'Mechanic', record, names: customFieldNameMaps[1] })),
+    ...reborers.map((record) => ({ category: 'REBORER', record, names: customFieldNameMaps[2] })),
+    ...idDataList.map((record) => ({ category: 'ID Data', record, names: customFieldNameMaps[3] })),
+  ];
+  customRows.forEach(({ category, record, names }) => {
+    Object.entries(record.customFields || {}).forEach(([fieldId, value]) => {
+      wsCustom.addRow({
+        category,
+        recordId: record.id,
+        fieldName: names.get(fieldId) || fieldId,
+        value: value || '',
+      });
+    });
+  });
+  wsCustom.getRow(1).height = 30;
+  wsCustom.getRow(1).eachCell((cell) => Object.assign(cell, headerStyle));
+  wsCustom.eachRow((row, rowNumber) => {
+    if (rowNumber > 1) row.eachCell((cell) => {
+      cell.border = dataRowBorder;
+      cell.alignment = { vertical: 'middle', wrapText: true };
+    });
+  });
+
   // Generate binary and trigger download
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
