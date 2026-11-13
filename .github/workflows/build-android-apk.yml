@@ -55,14 +55,37 @@ jobs:
           npx @capacitor/assets generate --android
           npx cap sync android
 
-      - name: Build APK
+      - name: Check signing secrets
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64" || (echo "Missing ANDROID_KEYSTORE_BASE64 secret" && exit 1)
+          test -n "$KEYSTORE_PASSWORD" || (echo "Missing ANDROID_KEYSTORE_PASSWORD secret" && exit 1)
+          test -n "$KEY_ALIAS" || (echo "Missing ANDROID_KEY_ALIAS secret" && exit 1)
+          test -n "$KEY_PASSWORD" || (echo "Missing ANDROID_KEY_PASSWORD secret" && exit 1)
+          echo "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/jayambe-release.jks"
+
+      - name: Build signed release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           cd "$APP_DIR/android"
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleRelease
+          APK="app/build/outputs/apk/release/app-release-unsigned.apk"
+          test -f "$APK"
+          BUILD_TOOLS="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          "$BUILD_TOOLS/zipalign" -p -f 4 "$APK" "$RUNNER_TEMP/jayambe-aligned.apk"
+          "$BUILD_TOOLS/apksigner" sign --ks "$RUNNER_TEMP/jayambe-release.jks" --ks-key-alias "$KEY_ALIAS" --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD --out "$APP_DIR/android/app/build/outputs/apk/release/JAY-AMBE-DATA-ENTRY-APP.apk" "$RUNNER_TEMP/jayambe-aligned.apk"
+          "$BUILD_TOOLS/apksigner" verify "$APP_DIR/android/app/build/outputs/apk/release/JAY-AMBE-DATA-ENTRY-APP.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: JAY-AMBE-ANDROID-APK
-          path: source/jay_app_check/android/app/build/outputs/apk/debug/app-debug.apk
+          path: source/jay_app_check/android/app/build/outputs/apk/release/JAY-AMBE-DATA-ENTRY-APP.apk
