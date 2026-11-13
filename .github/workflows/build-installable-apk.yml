@@ -24,10 +24,14 @@ jobs:
           python - <<'PY'
           from PIL import Image
           im = Image.open('1794290376979.gif').convert('RGBA')
-          im.thumbnail((900, 900), Image.Resampling.LANCZOS)
-          canvas = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0))
-          canvas.alpha_composite(im, ((1024-im.width)//2, (1024-im.height)//2))
-          canvas.save('source/jay_app_check/assets/icon-only.png')
+          # Keep the complete artwork well inside Android's adaptive-icon safe area.
+          im.thumbnail((600, 600), Image.Resampling.LANCZOS)
+          foreground = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0))
+          foreground.alpha_composite(im, ((1024-im.width)//2, (1024-im.height)//2))
+          foreground.save('source/jay_app_check/assets/icon-only.png')
+          foreground.save('source/jay_app_check/assets/icon-foreground.png')
+          background = Image.new('RGBA', (1024, 1024), (4, 78, 62, 255))
+          background.save('source/jay_app_check/assets/icon-background.png')
           PY
           cp source/jay_app_check/assets/icon-only.png source/jay_app_check/public/jay-ambe-app-icon.png
           cd source/jay_app_check
