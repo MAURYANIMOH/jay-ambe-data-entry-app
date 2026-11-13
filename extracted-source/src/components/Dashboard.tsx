@@ -20,7 +20,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigateTab }) => (
   <div className="space-y-6">
     <div className="rounded-3xl bg-gradient-to-r from-emerald-950 via-emerald-800 to-teal-900 p-6 sm:p-8 text-white shadow-xl">
       <div className="flex items-center gap-4">
-        <img src="/jay-ambe-app-icon.png" alt="JAY AMBE logo" className="h-28 w-28 shrink-0 rounded-2xl bg-white object-contain p-0 shadow-lg" />
+        <img src="/jay-ambe-app-icon.png" alt="JAY AMBE logo" className="h-32 w-32 shrink-0 rounded-2xl bg-white object-contain p-0 shadow-lg ring-2 ring-white/70" />
         <div>
           <p className="text-xs font-semibold tracking-widest text-emerald-200">JAY AMBE</p>
           <h1 className="text-2xl sm:text-3xl font-extrabold">DATA ENTRY APP</h1>
