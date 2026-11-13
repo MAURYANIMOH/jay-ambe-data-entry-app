@@ -17,6 +17,7 @@ import {
   Search,
   Database,
   Share2,
+  Download,
 } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
@@ -100,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={async () => {
-                const url = 'https://github.com/MAURYANIMOH/jay-ambe-data-entry-app/releases/latest';
+                const url = 'https://github.com/MAURYANIMOH/jay-ambe-data-entry-app/actions/runs/43451444987';
                 const shareData = { title: 'JAY AMBE DATA ENTRY APP', text: 'Download JAY AMBE DATA ENTRY APP', url };
                 try {
                   if (navigator.share) await navigator.share(shareData);
@@ -117,6 +118,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               aria-label="Share App"
             >
               <Share2 className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => window.open('https://github.com/MAURYANIMOH/jay-ambe-data-entry-app/actions/runs/43451444987', '_blank', 'noopener,noreferrer')}
+              className="p-2 text-emerald-200 hover:text-white hover:bg-emerald-900/80 rounded-xl transition"
+              title="Download App"
+              aria-label="Download App"
+            >
+              <Download className="w-4 h-4" />
             </button>
 
             {/* Quick Search Button */}
