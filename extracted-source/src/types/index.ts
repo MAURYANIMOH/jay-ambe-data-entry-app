@@ -1,6 +1,15 @@
-  customFields?: Record<string, string>;\n  customFields?: Record<string, string>;\n  customFields?: Record<string, string>;\n  customFields?: Record<string, string>;\nexport type CategoryType = 'RETAIL_SHOP' | 'MECHANIC' | 'REBORER' | 'ID_DATA';
+  customFields?: Record<string, string>;
+  customFields?: Record<string, string>;
+  customFields?: Record<string, string>;
+export type CategoryType = 'RETAIL_SHOP' | 'MECHANIC' | 'REBORER' | 'ID_DATA';
 
-export interface CustomFieldDefinition {\n  id: string;\n  name: string;\n}\n\nexport interface RetailShop {
+export interface CustomFieldDefinition {
+  id: string;
+  name: string;
+}
+
+export interface RetailShop {
+  customFields?: Record<string, string>;
   id: string;
   shopName: string;
   ownerName: string;
@@ -14,6 +23,7 @@ export interface CustomFieldDefinition {\n  id: string;\n  name: string;\n}\n\ne
 }
 
 export interface Mechanic {
+  customFields?: Record<string, string>;
   id: string;
   garageName: string;
   ownerName: string;
@@ -31,6 +41,7 @@ export interface Mechanic {
 }
 
 export interface Reborer {
+  customFields?: Record<string, string>;
   id: string;
   repoweringName: string;
   ownerMobileNumber: string; // Exactly 10 digits
@@ -54,6 +65,7 @@ export interface Employee {
 }
 
 export interface IdData {
+  customFields?: Record<string, string>;
   id: string;
   firmName: string;
   name: string;
