@@ -27,6 +27,7 @@ import {
   Reborer,
   IdData,
   Employee,
+  CustomFieldDefinition,
 } from '../types';
 import { dbService } from '../services/db';
 import {
@@ -63,6 +64,13 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [availableSegments, setAvailableSegments] = useState<string[]>([]);
   const [newSegmentInput, setNewSegmentInput] = useState('');
   const [showAddSegmentModal, setShowAddSegmentModal] = useState(false);
+
+  // Category-specific custom fields and values
+  const [customFieldDefinitions, setCustomFieldDefinitions] = useState<CustomFieldDefinition[]>([]);
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
+  const [showCustomFieldModal, setShowCustomFieldModal] = useState(false);
+  const [customFieldName, setCustomFieldName] = useState('');
+  const [draggedCustomFieldId, setDraggedCustomFieldId] = useState<string | null>(null);
 
   // UI Modals
   const [isMechanicsModalOpen, setIsMechanicsModalOpen] = useState(false);
@@ -143,6 +151,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     loadSegments();
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    dbService.getCustomFields(category).then((fields) => {
+      if (active) setCustomFieldDefinitions(fields);
+    });
+    setCustomFieldValues({});
+    return () => { active = false; };
+  }, [category]);
+
   // When initialCategory or editingRecordId changes
   useEffect(() => {
     if (initialCategory) {
@@ -166,10 +183,12 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   };
 
   const loadRecordForEdit = async (cat: CategoryType, id: string) => {
+    setCustomFieldValues({});
     try {
       if (cat === 'RETAIL_SHOP') {
         const record = await dbService.getRetailShopById(id);
         if (record) {
+          setCustomFieldValues(record.customFields || {});
           setCategory('RETAIL_SHOP');
           setCurrentEditId(id);
           setShopName(record.shopName);
@@ -184,6 +203,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       } else if (cat === 'MECHANIC') {
         const record = await dbService.getMechanicById(id);
         if (record) {
+          setCustomFieldValues(record.customFields || {});
           setCategory('MECHANIC');
           setCurrentEditId(id);
           setMechGarageName(record.garageName);
@@ -200,6 +220,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       } else if (cat === 'REBORER') {
         const record = await dbService.getReborerById(id);
         if (record) {
+          setCustomFieldValues(record.customFields || {});
           setCategory('REBORER');
           setCurrentEditId(id);
           setReborerRepoweringName(record.repoweringName);
@@ -214,6 +235,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       } else if (cat === 'ID_DATA') {
         const record = await dbService.getIdDataById(id);
         if (record) {
+          setCustomFieldValues(record.customFields || {});
           setCategory('ID_DATA');
           setCurrentEditId(id);
           setIdFirmName(record.firmName);
@@ -227,6 +249,49 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     } catch (e) {
       console.error('Failed to load record for edit:', e);
     }
+  };
+
+  const persistCustomFields = async (fields: CustomFieldDefinition[]) => {
+    setCustomFieldDefinitions(fields);
+    await dbService.saveCustomFields(category, fields);
+  };
+
+  const addCustomField = async () => {
+    const name = customFieldName.trim();
+    if (!name) return;
+    if (customFieldDefinitions.some((field) => field.name.toLowerCase() === name.toLowerCase())) {
+      showAlert('FIELD EXISTS', 'This custom field name already exists.');
+      return;
+    }
+    const field = { id: `custom_${Date.now()}`, name };
+    await persistCustomFields([...customFieldDefinitions, field]);
+    setCustomFieldValues((current) => ({ ...current, [field.id]: '' }));
+    setCustomFieldName('');
+    setShowCustomFieldModal(false);
+  };
+
+  const renameCustomField = async (field: CustomFieldDefinition) => {
+    const nextName = window.prompt('Edit custom field name', field.name)?.trim();
+    if (!nextName || nextName === field.name) return;
+    await persistCustomFields(customFieldDefinitions.map((item) => item.id === field.id ? { ...item, name: nextName } : item));
+  };
+
+  const deleteCustomField = async (field: CustomFieldDefinition) => {
+    if (!window.confirm(`Delete custom field "${field.name}"?`)) return;
+    await persistCustomFields(customFieldDefinitions.filter((item) => item.id !== field.id));
+    setCustomFieldValues((current) => { const next = { ...current }; delete next[field.id]; return next; });
+  };
+
+  const moveCustomField = async (targetId: string) => {
+    if (!draggedCustomFieldId || draggedCustomFieldId === targetId) return;
+    const next = [...customFieldDefinitions];
+    const from = next.findIndex((item) => item.id === draggedCustomFieldId);
+    const to = next.findIndex((item) => item.id === targetId);
+    if (from < 0 || to < 0) return;
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setDraggedCustomFieldId(null);
+    await persistCustomFields(next);
   };
 
   const handleAddNewSegment = async () => {
@@ -321,6 +386,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       const shopId = currentEditId || `shop_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
       const shopRecord: RetailShop = {
         id: shopId,
+        customFields: { ...customFieldValues },
         shopName: shopName.trim(),
         ownerName: shopOwnerName.trim(),
         mobileNumber: shopMobile.trim(),
@@ -390,6 +456,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       const mechId = currentEditId || `mech_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
       const mechRecord: Mechanic = {
         id: mechId,
+        customFields: { ...customFieldValues },
         garageName: mechGarageName.trim(),
         ownerName: mechOwnerName.trim(),
         ownerMobileNumber: mechOwnerMobile.trim(),
@@ -437,6 +504,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       const rebId = currentEditId || `reb_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
       const rebRecord: Reborer = {
         id: rebId,
+        customFields: { ...customFieldValues },
         repoweringName: reborerRepoweringName.trim(),
         ownerMobileNumber: reborerMobile.trim(),
         address: reborerAddress.trim(),
@@ -534,6 +602,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       const idRecordId = currentEditId || `id_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
       const idRecord: IdData = {
         id: idRecordId,
+        customFields: { ...customFieldValues },
         firmName: idFirmName.trim(),
         name: idUserName.trim(),
         idName: idLoginName.trim(),
@@ -1450,6 +1519,38 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           </div>
         )}
 
+        {/* CATEGORY-SPECIFIC CUSTOM FIELDS */}
+        <section className="rounded-2xl border border-dashed border-emerald-300 bg-emerald-50/40 p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <h3 className="text-sm font-bold text-emerald-950">Additional Custom Fields</h3>
+              <p className="text-xs text-gray-600">Only for this category • drag rows to reorder</p>
+            </div>
+            <button type="button" onClick={() => setShowCustomFieldModal(true)} className="px-3 py-2 rounded-lg bg-emerald-800 text-white text-xs font-bold flex items-center gap-1">
+              <Plus className="w-4 h-4" /> ADD NEW LINE
+            </button>
+          </div>
+          {customFieldDefinitions.length === 0 ? (
+            <p className="text-xs text-gray-500">No custom fields added yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {customFieldDefinitions.map((field) => (
+                <div key={field.id} draggable onDragStart={() => setDraggedCustomFieldId(field.id)} onDragOver={(event) => event.preventDefault()} onDrop={() => void moveCustomField(field.id)} className="grid grid-cols-[auto_1fr_auto] gap-2 items-center bg-white border border-gray-200 rounded-xl p-2">
+                  <span className="text-gray-400 cursor-grab" title="Drag to reorder">☰</span>
+                  <label className="min-w-0">
+                    <span className="block text-xs font-semibold text-gray-700 mb-1">{field.name}</span>
+                    <input type="text" value={customFieldValues[field.id] || ''} onChange={(event) => setCustomFieldValues((current) => ({ ...current, [field.id]: event.target.value }))} placeholder={`Enter ${field.name}`} className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm" />
+                  </label>
+                  <div className="flex flex-col gap-1">
+                    <button type="button" onClick={() => void renameCustomField(field)} className="p-1.5 text-blue-700" title="Rename field"><Edit3 className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => void deleteCustomField(field)} className="p-1.5 text-red-600" title="Delete field"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* ========================================================
             COMMON BUTTONS (EVERY CATEGORY MUST HAVE ALL 6):
             1. SUBMIT, 2. EDIT, 3. DELETE, 4. SEARCH, 5. CLEAR, 6. CANCEL
@@ -1529,6 +1630,19 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           </div>
         </div>
       </form>
+
+      {showCustomFieldModal && (
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl space-y-4">
+            <h3 className="text-base font-bold text-emerald-950">Create New Name</h3>
+            <input autoFocus type="text" value={customFieldName} onChange={(event) => setCustomFieldName(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); void addCustomField(); } }} placeholder="Enter new field name" className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm" />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => { setShowCustomFieldModal(false); setCustomFieldName(''); }} className="px-4 py-2 rounded-lg border text-sm">Cancel</button>
+              <button type="button" onClick={() => void addCustomField()} className="px-4 py-2 rounded-lg bg-emerald-800 text-white text-sm font-semibold">Save Name</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* POPUP 1: CONNECTED MECHANICS MODAL */}
       <ConnectedMechanicsModal
