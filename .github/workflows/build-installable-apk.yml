@@ -22,14 +22,13 @@ jobs:
           # Use its first frame and fit the entire image inside a transparent square (no crop).
           python -m pip install pillow
           python - <<'PY'
-          from PIL import Image
+          from PIL import Image, ImageOps
           im = Image.open('1794290376979.gif').convert('RGBA')
           # Dashboard uses the original artwork without the launcher safe-area padding.
           im.save('source/jay_app_check/public/jay-ambe-dashboard-logo.png')
-          # Keep the complete artwork well inside Android's adaptive-icon safe area.
-          im.thumbnail((600, 600), Image.Resampling.LANCZOS)
-          foreground = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0))
-          foreground.alpha_composite(im, ((1024-im.width)//2, (1024-im.height)//2))
+          # Fill the complete launcher icon area with the artwork; Android applies its round mask.
+          # Fit artwork edge-to-edge so there is no empty transparent border.
+          foreground = ImageOps.fit(im, (1024, 1024), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
           foreground.save('source/jay_app_check/assets/icon-only.png')
           foreground.save('source/jay_app_check/assets/icon-foreground.png')
           background = Image.new('RGBA', (1024, 1024), (4, 78, 62, 255))
