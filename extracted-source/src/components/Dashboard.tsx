@@ -18,11 +18,11 @@ const sections = [
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigateTab }) => (
   <div className="space-y-6">
-    <div className="rounded-2xl bg-gradient-to-r from-emerald-950 via-emerald-800 to-teal-900 p-3 text-white shadow-md">
-      <div className="flex h-24 items-center gap-3">
+    <div className="p-0 text-white">
+      <div className="flex items-center gap-3">
         <img src="/jay-ambe-dashboard-logo.png" alt="JAY AMBE logo" className="h-24 w-24 shrink-0 object-contain" />
-        <div className="flex h-24 min-w-0 flex-1 flex-col justify-center">
-          <h1 className="text-xl sm:text-2xl font-extrabold leading-tight">JAY AMBE<br />DATA ENTRY APP</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-extrabold leading-tight text-amber-500">JAY AMBE<br />DATA ENTRY APP</h1>
         </div>
       </div>
     </div>
