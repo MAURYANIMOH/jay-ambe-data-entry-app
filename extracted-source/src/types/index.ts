@@ -1,6 +1,3 @@
-  customFields?: Record<string, string>;
-  customFields?: Record<string, string>;
-  customFields?: Record<string, string>;
 export type CategoryType = 'RETAIL_SHOP' | 'MECHANIC' | 'REBORER' | 'ID_DATA';
 
 export interface CustomFieldDefinition {
