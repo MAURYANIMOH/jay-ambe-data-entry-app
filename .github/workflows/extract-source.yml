@@ -1,0 +1,32 @@
+name: Extract Jay Ambe source ZIP
+on:
+  push:
+    paths:
+      - ".github/workflows/extract-source.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Extract existing source archive
+        run: |
+          set -e
+          mkdir -p /tmp/jay-source
+          unzip -q jay-ambe-data-entry-old-source.zip -d /tmp/jay-source
+          rm -rf extracted-source
+          mkdir -p extracted-source
+          cp -a /tmp/jay-source/. extracted-source/
+          echo "Extracted files:"
+          find extracted-source -maxdepth 4 -type f | head -200
+      - name: Commit extracted source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add extracted-source
+          git commit -m "Extract existing Jay Ambe source archive" || exit 0
+          git push
