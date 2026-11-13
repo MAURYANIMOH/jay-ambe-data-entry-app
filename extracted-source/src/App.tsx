@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
 import { CategoryType } from './types';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
@@ -26,6 +27,36 @@ import {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [showSplash, setShowSplash] = useState(true);
+  const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+
+  useEffect(() => {
+    const splashTimer = window.setTimeout(() => setShowSplash(false), 2500);
+    let backListener: { remove: () => Promise<void> } | undefined;
+    CapacitorApp.addListener('backButton', () => {
+      const current = activeTabRef.current;
+      if (current !== 'dashboard') {
+        setNavigationHistory((history) => {
+          const previous = history[history.length - 1] || 'dashboard';
+          setActiveTab(previous);
+          return history.slice(0, -1);
+        });
+      } else {
+        void CapacitorApp.exitApp();
+      }
+    }).then((listener) => { backListener = listener; });
+    return () => {
+      window.clearTimeout(splashTimer);
+      backListener?.remove();
+    };
+  }, []);
+
+  const navigateTo = (tabId: string) => {
+    setNavigationHistory((history) => [...history, activeTabRef.current]);
+    setActiveTab(tabId);
+  };
   const [selectedFormCategory, setSelectedFormCategory] = useState<CategoryType>('RETAIL_SHOP');
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -52,11 +83,17 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-emerald-200 selection:text-emerald-950">
+      {showSplash && (
+        <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center">
+          <img src="/jay-ambe-splash.gif" alt="JAY AMBE DATA ENTRY APP" className="w-full h-full object-contain" />
+        </div>
+      )}
+
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
         onSelectTab={(tabId) => {
-          setActiveTab(tabId);
+          navigateTo(tabId);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onOpenSearch={() => setIsSearchOpen(true)}
@@ -67,8 +104,8 @@ export default function App() {
         {activeTab === 'dashboard' && (
           <Dashboard
             onSelectCategory={handleSelectCategoryFromDashboard}
-            onNavigateTab={setActiveTab}
-            onOpenExport={() => setActiveTab('export')}
+            onNavigateTab={navigateTo}
+            onOpenExport={() => navigateTo('export')}
             onOpenSearch={() => setIsSearchOpen(true)}
           />
         )}
@@ -81,10 +118,10 @@ export default function App() {
               setEditingRecordId(null);
             }}
             onNavigateToList={(cat) => {
-              if (cat === 'RETAIL_SHOP') setActiveTab('retail_shops');
-              if (cat === 'MECHANIC') setActiveTab('mechanics');
-              if (cat === 'REBORER') setActiveTab('reborers');
-              if (cat === 'ID_DATA') setActiveTab('id_data');
+              if (cat === 'RETAIL_SHOP') navigateTo('retail_shops');
+              if (cat === 'MECHANIC') navigateTo('mechanics');
+              if (cat === 'REBORER') navigateTo('reborers');
+              if (cat === 'ID_DATA') navigateTo('id_data');
             }}
           />
         )}
