@@ -1,4 +1,4 @@
-name: Build Jay Ambe Android APK
+name: Build Jay Ambe Android APK (Custom Fields)
 
 on:
   workflow_dispatch:
@@ -20,7 +20,9 @@ jobs:
         run: |
           mkdir source
           unzip -q jay-ambe-data-entry-app-android-ready.zip -d source
+          cp -a extracted-source/src/. source/jay_app_check/src/
           cd source/jay_app_check
+          sed -i "s/com.jayambe.dataentry/com.jayambe.dataentry.v2/" capacitor.config.ts
           echo "APP_DIR=$PWD" >> $GITHUB_ENV
 
       - name: Setup Node
