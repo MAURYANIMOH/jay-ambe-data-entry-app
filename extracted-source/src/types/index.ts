@@ -96,6 +96,7 @@ export interface ReborerEmployeeLink {
 
 export interface AppConfig {
   segments: string[];
+  customFields?: Partial<Record<CategoryType, CustomFieldDefinition[]>>;
   firebaseConfig?: {
     apiKey?: string;
     authDomain?: string;
