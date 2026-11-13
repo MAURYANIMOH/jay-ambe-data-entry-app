@@ -24,6 +24,8 @@ jobs:
           python - <<'PY'
           from PIL import Image
           im = Image.open('1794290376979.gif').convert('RGBA')
+          # Dashboard uses the original artwork without the launcher safe-area padding.
+          im.save('source/jay_app_check/public/jay-ambe-dashboard-logo.png')
           # Keep the complete artwork well inside Android's adaptive-icon safe area.
           im.thumbnail((600, 600), Image.Resampling.LANCZOS)
           foreground = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0))
