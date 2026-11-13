@@ -89,3 +89,5 @@ jobs:
         with:
           name: JAY-AMBE-ANDROID-APK
           path: source/jay_app_check/android/app/build/outputs/apk/release/JAY-AMBE-DATA-ENTRY-APP.apk
+
+# Trigger signed APK build after repository signing secrets were configured.
