@@ -131,6 +131,36 @@ class DatabaseService {
     });
   }
 
+  // =================== CATEGORY CUSTOM FIELDS ===================
+
+  async getCustomFields(category: CategoryType): Promise<CustomFieldDefinition[]> {
+    const db = await this.getDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('config', 'readonly');
+      const req = tx.objectStore('config').get('customFields');
+      req.onsuccess = () => {
+        const all = req.result?.value || {};
+        resolve(Array.isArray(all[category]) ? all[category] : []);
+      };
+      req.onerror = () => resolve([]);
+    });
+  }
+
+  async saveCustomFields(category: CategoryType, fields: CustomFieldDefinition[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('config', 'readwrite');
+      const store = tx.objectStore('config');
+      const req = store.get('customFields');
+      req.onsuccess = () => {
+        const all = req.result?.value || {};
+        store.put({ key: 'customFields', value: { ...all, [category]: fields } });
+      };
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
   // =================== CONFIG & SEGMENTS ===================
 
   async getSegments(): Promise<string[]> {
