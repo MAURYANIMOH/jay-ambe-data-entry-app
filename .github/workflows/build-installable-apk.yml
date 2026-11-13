@@ -1,0 +1,50 @@
+name: Build Jay Ambe APK (installable debug)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract project
+        run: |
+          mkdir source
+          unzip -q jay-ambe-data-entry-app-android-ready.zip -d source
+          cp -a extracted-source/src/. source/jay_app_check/src/
+          cp 1794290376979.gif source/jay_app_check/public/jay-ambe-splash.gif
+          mkdir -p source/jay_app_check/assets
+          cp jay-ambe-app-icon.png source/jay_app_check/assets/icon-only.png
+          cd source/jay_app_check
+          sed -i "s/com.jayambe.dataentry/com.jayambe.dataentry.v2/" capacitor.config.ts
+          echo "APP_DIR=$PWD" >> $GITHUB_ENV
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v4
+      - name: Build APK
+        run: |
+          cd "$APP_DIR"
+          npm install --legacy-peer-deps
+          npm install --save-dev "typescript@npm:@typescript/typescript6@^6.0.2" --legacy-peer-deps
+          npm install @capacitor/android@^7.4.3 @capacitor/app@^7.1.0 --legacy-peer-deps
+          npm install --save-dev @capacitor/assets --legacy-peer-deps
+          npm run build
+          npx cap add android
+          npx @capacitor/assets generate --android
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: JAY-AMBE-ANDROID-APK
+          path: source/jay_app_check/android/app/build/outputs/apk/debug/app-debug.apk
