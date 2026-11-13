@@ -1,6 +1,6 @@
-export type CategoryType = 'RETAIL_SHOP' | 'MECHANIC' | 'REBORER' | 'ID_DATA';
+  customFields?: Record<string, string>;\n  customFields?: Record<string, string>;\n  customFields?: Record<string, string>;\n  customFields?: Record<string, string>;\nexport type CategoryType = 'RETAIL_SHOP' | 'MECHANIC' | 'REBORER' | 'ID_DATA';
 
-export interface RetailShop {
+export interface CustomFieldDefinition {\n  id: string;\n  name: string;\n}\n\nexport interface RetailShop {
   id: string;
   shopName: string;
   ownerName: string;
