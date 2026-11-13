@@ -1,0 +1,7 @@
+{
+  "name": "JAY AMBE DATA ENTRY APP",
+  "description": "Mobile-first Sales Network Management Application with dynamic category forms for Retail Shops, Mechanics, Reborers, and ID Data, relationship linking, offline-first IndexedDB sync, and Excel exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
