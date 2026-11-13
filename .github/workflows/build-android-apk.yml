@@ -21,6 +21,8 @@ jobs:
           mkdir source
           unzip -q jay-ambe-data-entry-app-android-ready.zip -d source
           cp -a extracted-source/src/. source/jay_app_check/src/
+          cp 1794290376979.gif source/jay_app_check/public/jay-ambe-splash.gif
+          cp jay-ambe-app-icon.png source/jay_app_check/assets/icon-only.png
           cd source/jay_app_check
           sed -i "s/com.jayambe.dataentry/com.jayambe.dataentry.v2/" capacitor.config.ts
           echo "APP_DIR=$PWD" >> $GITHUB_ENV
@@ -43,10 +45,9 @@ jobs:
         run: |
           cd "$APP_DIR"
           mkdir -p assets
-          cp ../../jay-ambe-app-icon.png assets/logo.png
-          npm install --legacy-peer-deps
+                    npm install --legacy-peer-deps
           npm install --save-dev "typescript@npm:@typescript/typescript6@^6.0.2" --legacy-peer-deps
-          npm install @capacitor/android@^7.4.3 --legacy-peer-deps
+          npm install @capacitor/android@^7.4.3 @capacitor/app@^7.1.0 --legacy-peer-deps
           npm install --save-dev @capacitor/assets --legacy-peer-deps
           npm run build
           npx cap add android
