@@ -18,11 +18,12 @@ jobs:
           cp 1794290376979.gif source/jay_app_check/public/jay-ambe-splash.gif
           mkdir -p source/jay_app_check/assets
           mkdir -p source/jay_app_check/assets source/jay_app_check/public
-          # Keep the complete supplied logo visible without cropping it.
+          # Use the exact splash GIF artwork for the launcher icon.
+          # Use its first frame and fit the entire image inside a transparent square (no crop).
           python -m pip install pillow
           python - <<'PY'
           from PIL import Image
-          im = Image.open('jay-ambe-app-icon.png').convert('RGBA')
+          im = Image.open('1794290376979.gif').convert('RGBA')
           im.thumbnail((900, 900), Image.Resampling.LANCZOS)
           canvas = Image.new('RGBA', (1024, 1024), (0, 0, 0, 0))
           canvas.alpha_composite(im, ((1024-im.width)//2, (1024-im.height)//2))
