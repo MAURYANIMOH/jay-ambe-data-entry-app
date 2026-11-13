@@ -1,0 +1,26 @@
+name: Validate Jay Ambe Source
+on:
+  push:
+    paths:
+      - "extracted-source/**"
+      - ".github/workflows/validate-source.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extracted-source
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+      - name: Build web app
+        run: npm run build
+      - name: TypeScript check
+        run: npm run lint
