@@ -11,6 +11,8 @@ import {
   DatabaseBackup,
   BackupValidationResult,
   RestoreResult,
+  CategoryType,
+  CustomFieldDefinition,
 } from '../types';
 
 const DB_NAME = 'JayAmbeDataEntryDB';
