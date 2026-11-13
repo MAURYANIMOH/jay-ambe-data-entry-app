@@ -17,7 +17,6 @@ import {
   Search,
   Database,
   Share2,
-  Download,
 } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
