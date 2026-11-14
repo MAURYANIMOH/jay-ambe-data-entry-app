@@ -72,7 +72,7 @@ export default function App() {
   }, []);
 
   const sendPhoneOtp = async () => {
-    const digits = phoneNumber.replace(/\\D/g, '');
+    const digits = phoneNumber.replace(/\D/g, '');
     if (!/^[6-9]\\d{9}$/.test(digits)) { setAuthError('Sahi 10 digit mobile number dalein.'); return; }
     setAuthBusy(true); setAuthError('');
     try { await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: '+91' + digits, timeout: 60 }); }
@@ -155,14 +155,14 @@ export default function App() {
                     <label className="block text-sm font-semibold mb-2">Mobile Number</label>
                     <div className="flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-3">
                       <span className="font-semibold text-slate-600">+91</span>
-                      <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/\\D/g, '').slice(0,10))} inputMode="numeric" maxLength={10} placeholder="10 digit mobile number" className="w-full outline-none" />
+                      <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0,10))} inputMode="numeric" maxLength={10} placeholder="10 digit mobile number" className="w-full outline-none" />
                     </div>
                     <button onClick={sendPhoneOtp} disabled={authBusy} className="mt-4 w-full rounded-xl bg-emerald-800 py-3 font-bold text-white disabled:opacity-50">{authBusy ? 'OTP bhej rahe hain...' : 'Send OTP'}</button>
                   </>
                 ) : (
                   <>
                     <p className="mb-3 text-sm text-slate-600">+91 {phoneNumber} par bheja gaya 6 digit OTP dalein.</p>
-                    <input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\\D/g, '').slice(0,6))} inputMode="numeric" maxLength={6} placeholder="6 digit OTP" className="w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-xl tracking-[0.4em]" />
+                    <input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0,6))} inputMode="numeric" maxLength={6} placeholder="6 digit OTP" className="w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-xl tracking-[0.4em]" />
                     <button onClick={verifyPhoneOtp} disabled={authBusy} className="mt-4 w-full rounded-xl bg-emerald-800 py-3 font-bold text-white disabled:opacity-50">{authBusy ? 'Verify ho raha hai...' : 'Verify OTP'}</button>
                     <button onClick={() => { setOtpSent(false); setOtpCode(''); setVerificationId(''); setAuthError(''); }} className="mt-3 w-full py-2 text-sm font-semibold text-emerald-800">Change mobile number</button>
                   </>
