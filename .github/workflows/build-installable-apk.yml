@@ -37,6 +37,17 @@ jobs:
           cp source/jay_app_check/assets/icon-only.png source/jay_app_check/public/jay-ambe-app-icon.png
           cd source/jay_app_check
           sed -i "s/com.jayambe.dataentry/com.jayambe.dataentry.v2/" capacitor.config.ts
+          cat > capacitor.config.ts <<'EOF'
+          import type { CapacitorConfig } from '@capacitor/cli';
+          const config: CapacitorConfig = {
+            appId: 'com.jayambe.dataentry.v2',
+            appName: 'JAY AMBE DATA ENTRY APP',
+            webDir: 'dist',
+            android: { allowMixedContent: false },
+            plugins: { FirebaseAuthentication: { skipNativeAuth: false, providers: ['phone'] } },
+          };
+          export default config;
+          EOF
           echo "APP_DIR=$PWD" >> $GITHUB_ENV
       - uses: actions/setup-node@v4
         with:
@@ -54,7 +65,12 @@ jobs:
           npm install @capacitor/android@^7.4.3 @capacitor/app@^7.1.0 @capacitor/share@^7.0.2 @capacitor/filesystem@^7.1.4 --legacy-peer-deps
           npm install --save-dev @capacitor/assets --legacy-peer-deps
           npm run build
+          npm install @capacitor-firebase/authentication@7.5.0 firebase --legacy-peer-deps
           npx cap add android
+          cp "$GITHUB_WORKSPACE/google-services.json" android/app/google-services.json
+          # Enable the Google Services Gradle plugin required by Firebase Android Auth.
+          grep -q "com.google.gms:google-services" android/build.gradle || sed -i "/dependencies {/a\\        classpath 'com.google.gms:google-services:4.4.4'" android/build.gradle
+          grep -q "com.google.gms.google-services" android/app/build.gradle || echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
           npx @capacitor/assets generate --android
           npx cap sync android
           cd android
