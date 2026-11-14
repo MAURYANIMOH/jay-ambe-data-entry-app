@@ -73,7 +73,7 @@ export default function App() {
 
   const sendPhoneOtp = async () => {
     const digits = phoneNumber.replace(/\D/g, '');
-    if (!/^[6-9]\d{9}$/.test(digits)) { setAuthError('Sahi 10 digit mobile number dalein.'); return; }
+    if (digits.length !== 10) { setAuthError(`10 digit mobile number dalein. Abhi ${digits.length} digit mile hain.`); return; }
     setAuthBusy(true); setAuthError('');
     try { await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: '+91' + digits, timeout: 60 }); }
     catch (error) { setAuthError(error instanceof Error ? error.message : 'OTP bhejne mein dikkat hui.'); setAuthBusy(false); }
