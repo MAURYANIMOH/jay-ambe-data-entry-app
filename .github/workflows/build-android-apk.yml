@@ -25,7 +25,8 @@ jobs:
           mkdir -p source/jay_app_check/assets
           cp jay-ambe-app-icon.png source/jay_app_check/assets/icon-only.png
           cd source/jay_app_check
-          sed -i "s/com.jayambe.dataentry/com.jayambe.dataentry.v2/" capacitor.config.ts
+          # Keep the original application ID so this build can update the existing app.
+          grep -n "appId" capacitor.config.ts
           echo "APP_DIR=$PWD" >> $GITHUB_ENV
 
       - name: Setup Node
