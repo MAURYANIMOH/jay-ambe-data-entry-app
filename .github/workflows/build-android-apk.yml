@@ -46,12 +46,17 @@ jobs:
         run: |
           cd "$APP_DIR"
           mkdir -p assets
-                    npm install --legacy-peer-deps
+          npm install --legacy-peer-deps
           npm install --save-dev "typescript@npm:@typescript/typescript6@^6.0.2" --legacy-peer-deps
-          npm install @capacitor/android@^7.4.3 @capacitor/app@^7.1.0 @capacitor/share@^7.0.2 @capacitor/filesystem@^7.1.4 @capacitor-firebase/authentication@^7.3.1 --legacy-peer-deps
+          npm install @capacitor/android@^7.4.3 @capacitor/app@^7.1.0 @capacitor/share@^7.0.2 @capacitor/filesystem@^7.1.4 --legacy-peer-deps
           npm install --save-dev @capacitor/assets --legacy-peer-deps
+          npm install @capacitor-firebase/authentication@7.5.0 firebase --legacy-peer-deps
           npm run build
           npx cap add android
+          cp "$GITHUB_WORKSPACE/google-services.json" android/app/google-services.json
+          # Enable Google Services for native Firebase phone authentication.
+          grep -q "com.google.gms:google-services" android/build.gradle || sed -i "/dependencies {/a\\        classpath 'com.google.gms:google-services:4.4.4'" android/build.gradle
+          grep -q "com.google.gms.google-services" android/app/build.gradle || echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
           npx @capacitor/assets generate --android
           npx cap sync android
 
