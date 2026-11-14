@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { CategoryType } from './types';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
@@ -28,9 +30,64 @@ import {
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [showSplash, setShowSplash] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [verificationId, setVerificationId] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState('');
   const [navigationHistory, setNavigationHistory] = useState<string[]>([]);
   const activeTabRef = useRef(activeTab);
   useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) { setAuthReady(true); setIsAuthenticated(true); return; }
+    let listeners: Array<{ remove: () => Promise<void> }> = [];
+    let mounted = true;
+    (async () => {
+      try {
+        const current = await FirebaseAuthentication.getCurrentUser();
+        if (mounted && current.user) setIsAuthenticated(true);
+        const sent = await FirebaseAuthentication.addListener('phoneCodeSent', (event) => {
+          if (!mounted) return;
+          setVerificationId(event.verificationId);
+          setOtpSent(true);
+          setAuthBusy(false);
+          setAuthError('');
+        });
+        const completed = await FirebaseAuthentication.addListener('phoneVerificationCompleted', (event) => {
+          if (mounted && event.result.user) { setIsAuthenticated(true); setAuthBusy(false); }
+        });
+        const failed = await FirebaseAuthentication.addListener('phoneVerificationFailed', (event) => {
+          if (mounted) { setAuthError(event.message || 'OTP verify nahi ho paya. Dobara koshish karein.'); setAuthBusy(false); }
+        });
+        listeners = [sent, completed, failed];
+      } catch (error) {
+        if (mounted) setAuthError(error instanceof Error ? error.message : 'Firebase login initialize nahi hua.');
+      } finally { if (mounted) setAuthReady(true); }
+    })();
+    return () => { mounted = false; listeners.forEach((listener) => { void listener.remove(); }); };
+  }, []);
+
+  const sendPhoneOtp = async () => {
+    const digits = phoneNumber.replace(/\\D/g, '');
+    if (!/^[6-9]\\d{9}$/.test(digits)) { setAuthError('Sahi 10 digit mobile number dalein.'); return; }
+    setAuthBusy(true); setAuthError('');
+    try { await FirebaseAuthentication.signInWithPhoneNumber({ phoneNumber: '+91' + digits, timeout: 60 }); }
+    catch (error) { setAuthError(error instanceof Error ? error.message : 'OTP bhejne mein dikkat hui.'); setAuthBusy(false); }
+  };
+
+  const verifyPhoneOtp = async () => {
+    if (!verificationId || !/^\\d{6}$/.test(otpCode)) { setAuthError('6 digit OTP dalein.'); return; }
+    setAuthBusy(true); setAuthError('');
+    try {
+      const result = await FirebaseAuthentication.confirmVerificationCode({ verificationId, verificationCode: otpCode });
+      if (result.user) setIsAuthenticated(true);
+    } catch (error) { setAuthError(error instanceof Error ? error.message : 'OTP galat hai ya expire ho gaya.'); }
+    finally { setAuthBusy(false); }
+  };
 
   useEffect(() => {
     const splashTimer = window.setTimeout(() => setShowSplash(false), 2500);
@@ -83,6 +140,40 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-emerald-200 selection:text-emerald-950">
+      {Capacitor.isNativePlatform() && (!authReady || !isAuthenticated) && (
+        <div className="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-5">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="text-2xl font-extrabold text-emerald-900">JAY AMBE</div>
+              <div className="text-sm font-semibold text-slate-600">DATA ENTRY APP</div>
+              <p className="mt-3 text-sm text-slate-500">Continue karne ke liye mobile OTP se login karein.</p>
+            </div>
+            {!authReady ? <p className="text-center text-sm text-slate-600">Login taiyar ho raha hai...</p> : (
+              <>
+                {!otpSent ? (
+                  <>
+                    <label className="block text-sm font-semibold mb-2">Mobile Number</label>
+                    <div className="flex items-center gap-2 rounded-xl border border-slate-300 px-3 py-3">
+                      <span className="font-semibold text-slate-600">+91</span>
+                      <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value.replace(/\\D/g, '').slice(0,10))} inputMode="numeric" maxLength={10} placeholder="10 digit mobile number" className="w-full outline-none" />
+                    </div>
+                    <button onClick={sendPhoneOtp} disabled={authBusy} className="mt-4 w-full rounded-xl bg-emerald-800 py-3 font-bold text-white disabled:opacity-50">{authBusy ? 'OTP bhej rahe hain...' : 'Send OTP'}</button>
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-3 text-sm text-slate-600">+91 {phoneNumber} par bheja gaya 6 digit OTP dalein.</p>
+                    <input value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\\D/g, '').slice(0,6))} inputMode="numeric" maxLength={6} placeholder="6 digit OTP" className="w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-xl tracking-[0.4em]" />
+                    <button onClick={verifyPhoneOtp} disabled={authBusy} className="mt-4 w-full rounded-xl bg-emerald-800 py-3 font-bold text-white disabled:opacity-50">{authBusy ? 'Verify ho raha hai...' : 'Verify OTP'}</button>
+                    <button onClick={() => { setOtpSent(false); setOtpCode(''); setVerificationId(''); setAuthError(''); }} className="mt-3 w-full py-2 text-sm font-semibold text-emerald-800">Change mobile number</button>
+                  </>
+                )}
+                {authError && <p className="mt-3 text-sm text-red-600">{authError}</p>}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {showSplash && (
         <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center">
           <img src="/jay-ambe-splash.gif" alt="JAY AMBE DATA ENTRY APP" className="w-full h-full object-contain" />
