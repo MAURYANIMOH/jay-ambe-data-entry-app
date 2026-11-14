@@ -20,6 +20,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --legacy-peer-deps
+      - name: Install native file sharing plugins
+        run: npm install @capacitor/share@^7.0.2 @capacitor/filesystem@^7.1.4 --legacy-peer-deps
       - name: Build web app
         run: npm run build
       - name: TypeScript check
