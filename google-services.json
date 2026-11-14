@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:609040512521:android:2a7247d436baeb277e6ad8",
+        "android_client_info": {
+          "package_name": "com.jayambe.dataentry"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpiBjoTkw2ob2WwogBomGuVpWKR-lGqvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:609040512521:android:03451926a8c85fc37e6ad8",
         "android_client_info": {
           "package_name": "com.jayambe.dataentry.v2"
