@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import {
   Store,
   Wrench,
@@ -101,15 +104,51 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={async () => {
                 const url = 'https://github.com/MAURYANIMOH/jay-ambe-data-entry-app/releases/latest/download/JAY-AMBE-ANDROID-APK.apk';
-                const shareData = { title: 'JAY AMBE DATA ENTRY APP', text: 'Download JAY AMBE DATA ENTRY APP', url };
                 try {
-                  if (navigator.share) await navigator.share(shareData);
-                  else if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(url);
-                    window.alert('App download link copied. You can share it on WhatsApp.');
-                  } else window.prompt('Copy app download link', url);
+                  const response = await fetch(url);
+                  if (!response.ok) throw new Error('APK download failed');
+                  const apkBlob = await response.blob();
+                  const apkFile = new File([apkBlob], 'JAY-AMBE-ANDROID-APK.apk', {
+                    type: 'application/vnd.android.package-archive',
+                  });
+
+                  if (Capacitor.isNativePlatform()) {
+                    const bytes = new Uint8Array(await apkBlob.arrayBuffer());
+                    let binary = '';
+                    const chunkSize = 0x8000;
+                    for (let i = 0; i < bytes.length; i += chunkSize) {
+                      binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+                    }
+                    const saved = await Filesystem.writeFile({
+                      path: 'JAY-AMBE-ANDROID-APK.apk',
+                      data: btoa(binary),
+                      directory: Directory.Cache,
+                    });
+                    await Share.share({
+                      title: 'JAY AMBE DATA ENTRY APP',
+                      text: 'JAY AMBE DATA ENTRY APP - APK file',
+                      files: [saved.uri],
+                      dialogTitle: 'Share JAY AMBE APP APK',
+                    });
+                  } else if (navigator.canShare?.({ files: [apkFile] }) && navigator.share) {
+                    await navigator.share({
+                      title: 'JAY AMBE DATA ENTRY APP',
+                      text: 'JAY AMBE DATA ENTRY APP - APK file',
+                      files: [apkFile],
+                    });
+                  } else {
+                    const downloadUrl = URL.createObjectURL(apkBlob);
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    link.download = 'JAY-AMBE-ANDROID-APK.apk';
+                    link.click();
+                    URL.revokeObjectURL(downloadUrl);
+                    window.alert('APK डाउनलोड हो गई है। अब इसे WhatsApp में Document के रूप में भेजें।');
+                  }
                 } catch (error) {
-                  if ((error as Error).name !== 'AbortError') window.prompt('Copy app download link', url);
+                  if ((error as Error).name !== 'AbortError') {
+                    window.alert('APK शेयर नहीं हो पाई। इंटरनेट कनेक्शन जाँचकर दोबारा कोशिश करें।');
+                  }
                 }
               }}
               className="p-2 text-emerald-200 hover:text-white hover:bg-emerald-900/80 rounded-xl transition"
