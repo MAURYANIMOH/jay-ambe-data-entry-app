@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "609040512521",
+    "project_id": "jay-ambe-data-entry",
+    "storage_bucket": "jay-ambe-data-entry.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609040512521:android:03451926a8c85fc37e6ad8",
+        "android_client_info": {
+          "package_name": "com.jayambe.dataentry.v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpiBjoTkw2ob2WwogBomGuVpWKR-lGqvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
