@@ -16,7 +16,7 @@ const sections = [
   { title: 'ID Data', description: 'ID Details', icon: KeyRound, tab: 'id_data', category: 'ID_DATA' as CategoryType },
 ];
 
-export const Dashboard: React.FC<DashboardProps> = ({ onNavigateTab }) => (
+export const Dashboard: React.FC<DashboardProps> = ({ onSelectCategory }) => (
   <div className="space-y-6">
     <div className="p-0 text-white">
       <div className="flex items-center gap-3">
@@ -32,7 +32,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigateTab }) => (
         <button
           key={tab}
           type="button"
-          onClick={() => onNavigateTab(tab)}
+          onClick={() => onSelectCategory(sections.find((section) => section.tab === tab)!.category)}
           className="group flex min-h-32 items-center justify-between rounded-2xl border border-emerald-900/10 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-600 hover:shadow-md"
         >
           <span className="flex items-center gap-4">
