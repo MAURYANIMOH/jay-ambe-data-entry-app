@@ -100,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={async () => {
-                const url = 'https://github.com/MAURYANIMOH/jay-ambe-data-entry-app/actions/runs/43451444987';
+                const url = 'https://github.com/MAURYANIMOH/jay-ambe-data-entry-app/releases/latest/download/JAY-AMBE-ANDROID-APK.apk';
                 const shareData = { title: 'JAY AMBE DATA ENTRY APP', text: 'Download JAY AMBE DATA ENTRY APP', url };
                 try {
                   if (navigator.share) await navigator.share(shareData);
