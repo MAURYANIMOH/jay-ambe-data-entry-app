@@ -237,7 +237,7 @@ export default function App() {
 
       {/* Offline Toast Banner */}
       {!isOnline && (
-        <div className="fixed bottom-16 sm:bottom-4 left-4 z-40 bg-amber-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xl flex items-center gap-2 animate-in fade-in">
+        <div className="fixed bottom-[60px] sm:bottom-3 left-4 z-40 bg-amber-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-xl flex items-center gap-2 animate-in fade-in">
           <span className="w-2 h-2 rounded-full bg-amber-300 animate-ping" />
           <span>Offline Mode Active — Data saved safely in IndexedDB</span>
         </div>
