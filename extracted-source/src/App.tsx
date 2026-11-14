@@ -40,6 +40,7 @@ export default function App() {
       if (current !== 'dashboard') {
         setNavigationHistory((history) => {
           const previous = history[history.length - 1] || 'dashboard';
+          activeTabRef.current = previous;
           setActiveTab(previous);
           return history.slice(0, -1);
         });
@@ -54,7 +55,9 @@ export default function App() {
   }, []);
 
   const navigateTo = (tabId: string) => {
+    if (tabId === activeTabRef.current) return;
     setNavigationHistory((history) => [...history, activeTabRef.current]);
+    activeTabRef.current = tabId;
     setActiveTab(tabId);
   };
   const [selectedFormCategory, setSelectedFormCategory] = useState<CategoryType>('RETAIL_SHOP');
@@ -66,19 +69,19 @@ export default function App() {
   const handleSelectCategoryFromDashboard = (cat: CategoryType) => {
     setSelectedFormCategory(cat);
     setEditingRecordId(null);
-    setActiveTab('entry_form');
+    navigateTo('entry_form');
   };
 
   const handleEditRecord = (cat: CategoryType, id: string) => {
     setSelectedFormCategory(cat);
     setEditingRecordId(id);
-    setActiveTab('entry_form');
+    navigateTo('entry_form');
   };
 
   const handleAddNewRecord = (cat: CategoryType) => {
     setSelectedFormCategory(cat);
     setEditingRecordId(null);
-    setActiveTab('entry_form');
+    navigateTo('entry_form');
   };
 
   return (
@@ -90,14 +93,14 @@ export default function App() {
       )}
 
       {/* Top Navbar */}
-      <Navbar
+      {activeTab !== 'entry_form' && <Navbar
         activeTab={activeTab}
         onSelectTab={(tabId) => {
           navigateTo(tabId);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onOpenSearch={() => setIsSearchOpen(true)}
-      />
+      />}
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-6 pb-24 md:pb-12">
@@ -169,9 +172,9 @@ export default function App() {
       </main>
 
       {/* Mobile Bottom Quick Navigation Bar */}
-      <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-emerald-950/10 px-2 py-1.5 flex items-center justify-around z-30 lg:hidden shadow-lg">
+      {activeTab !== 'entry_form' && <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-emerald-950/10 px-2 py-1.5 flex items-center justify-around z-30 lg:hidden shadow-lg">
         <button
-          onClick={() => setActiveTab('dashboard')}
+          onClick={() => navigateTo('dashboard')}
           className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition ${
             activeTab === 'dashboard' ? 'text-emerald-800 font-bold' : 'text-gray-500'
           }`}
@@ -183,7 +186,7 @@ export default function App() {
         <button
           onClick={() => {
             setEditingRecordId(null);
-            setActiveTab('entry_form');
+            navigateTo('entry_form');
           }}
           className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition ${
             activeTab === 'entry_form' ? 'text-emerald-800 font-bold' : 'text-gray-500'
@@ -196,7 +199,7 @@ export default function App() {
         </button>
 
         <button
-          onClick={() => setActiveTab('retail_shops')}
+          onClick={() => navigateTo('retail_shops')}
           className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition ${
             activeTab === 'retail_shops' ? 'text-emerald-800 font-bold' : 'text-gray-500'
           }`}
@@ -206,7 +209,7 @@ export default function App() {
         </button>
 
         <button
-          onClick={() => setActiveTab('mechanics')}
+          onClick={() => navigateTo('mechanics')}
           className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition ${
             activeTab === 'mechanics' ? 'text-emerald-800 font-bold' : 'text-gray-500'
           }`}
@@ -216,7 +219,7 @@ export default function App() {
         </button>
 
         <button
-          onClick={() => setActiveTab('export')}
+          onClick={() => navigateTo('export')}
           className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl transition ${
             activeTab === 'export' ? 'text-emerald-800 font-bold' : 'text-gray-500'
           }`}
@@ -224,7 +227,7 @@ export default function App() {
           <Database className="w-5 h-5" />
           <span className="text-[10px]">Backup</span>
         </button>
-      </nav>
+      </nav>}
 
       {/* Global Search Modal */}
       <SearchModal
