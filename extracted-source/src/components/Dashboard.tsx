@@ -17,12 +17,12 @@ const sections = [
 ];
 
 export const Dashboard: React.FC<DashboardProps> = ({ onSelectCategory }) => (
-  <div className="space-y-6">
-    <div className="p-0 text-white">
+  <div className="relative isolate space-y-6 overflow-hidden rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-100 via-white to-amber-50 p-3 shadow-inner sm:p-5" style={{ backgroundImage: "linear-gradient(135deg, rgba(224,242,254,.94), rgba(255,255,255,.88), rgba(254,243,199,.92)), url(/jay-ambe-dashboard-logo.png)", backgroundSize: "cover", backgroundPosition: "center" }}>
+    <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-r from-blue-950/95 via-indigo-900/90 to-emerald-900/90 p-4 text-white shadow-lg">
       <div className="flex items-center gap-3">
         <img src="/jay-ambe-dashboard-logo.png" alt="JAY AMBE logo" className="h-24 w-24 shrink-0 object-contain" />
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-extrabold leading-tight text-amber-500">JAY AMBE<br />DATA ENTRY APP</h1>
+          <h1 className="text-xl sm:text-2xl font-extrabold leading-tight text-amber-300 drop-shadow">JAY AMBE<br />DATA ENTRY APP</h1>
         </div>
       </div>
     </div>
