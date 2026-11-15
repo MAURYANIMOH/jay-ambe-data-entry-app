@@ -726,16 +726,16 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       )}
 
       {/* FORM CARD */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-emerald-950/5 p-4 sm:p-6 space-y-6">
+      <form onSubmit={handleSubmit} className={`rounded-2xl shadow-md border-t-4 p-4 sm:p-6 space-y-6 ${category === 'RETAIL_SHOP' ? 'bg-gradient-to-b from-emerald-50/70 to-white border-emerald-500' : category === 'MECHANIC' ? 'bg-gradient-to-b from-blue-50/70 to-white border-blue-500' : category === 'REBORER' ? 'bg-gradient-to-b from-orange-50/70 to-white border-orange-500' : 'bg-gradient-to-b from-violet-50/70 to-white border-violet-500'}`}>
         {/* ========================================================
             CATEGORY 1: RETAIL SHOP FIELDS
             ======================================================== */}
         {category === 'RETAIL_SHOP' && (
           <div className="space-y-4">
-            <div className="border-b border-gray-100 pb-3 flex items-center justify-between">
+            <div className={`-mx-1 rounded-xl border-b pb-3 px-3 pt-3 flex items-center justify-between ${category === 'RETAIL_SHOP' ? 'bg-emerald-100/70 border-emerald-200' : category === 'MECHANIC' ? 'bg-blue-100/70 border-blue-200' : category === 'REBORER' ? 'bg-orange-100/70 border-orange-200' : 'bg-violet-100/70 border-violet-200'}`}>
               <div>
-                <h3 className="text-base font-bold text-emerald-950 flex items-center gap-2">
-                  <Store className="w-5 h-5 text-emerald-700" />
+                <h3 className={`text-base font-extrabold flex items-center gap-2 ${category === 'RETAIL_SHOP' ? 'text-emerald-950' : category === 'MECHANIC' ? 'text-blue-950' : category === 'REBORER' ? 'text-orange-950' : 'text-violet-950'}`}>
+                  <Store className={`w-5 h-5 ${category === 'RETAIL_SHOP' ? 'text-emerald-700' : 'text-blue-700'}`} />
                   Retail Shop Details
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">
