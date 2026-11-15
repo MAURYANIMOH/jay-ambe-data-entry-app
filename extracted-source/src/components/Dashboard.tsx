@@ -17,38 +17,41 @@ const sections = [
 ];
 
 export const Dashboard: React.FC<DashboardProps> = ({ onSelectCategory }) => (
-  <div className="relative isolate space-y-6 overflow-hidden rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-100 via-white to-amber-50 p-3 shadow-inner sm:p-5" style={{ backgroundImage: "linear-gradient(135deg, rgba(224,242,254,.94), rgba(255,255,255,.88), rgba(254,243,199,.92)), url(/jay-ambe-dashboard-logo.png)", backgroundSize: "cover", backgroundPosition: "center" }}>
-    <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-r from-blue-950/95 via-indigo-900/90 to-emerald-900/90 p-4 text-white shadow-lg">
-      <div className="flex items-center gap-3">
-        <img src="/jay-ambe-dashboard-logo.png" alt="JAY AMBE logo" className="h-24 w-24 shrink-0 object-contain" />
-        <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-extrabold leading-tight text-amber-300 drop-shadow">JAY AMBE<br />DATA ENTRY APP</h1>
+  <div className="relative isolate min-h-full overflow-hidden rounded-3xl border-2 border-sky-200 bg-gradient-to-b from-sky-300 via-sky-100 to-yellow-50 p-3 shadow-xl sm:p-5">
+    <div className="pointer-events-none absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 15% 15%, white 0 2px, transparent 3px), radial-gradient(circle at 80% 25%, white 0 2px, transparent 3px)", backgroundSize: "38px 38px" }} />
+    <div className="relative mb-5 overflow-hidden rounded-2xl border-2 border-yellow-300 bg-gradient-to-r from-blue-950 via-indigo-800 to-blue-700 p-4 text-center text-white shadow-xl">
+      <div className="flex items-center justify-center gap-3">
+        <img src="/pwa-512x512.png" alt="JAY AMBE" className="h-20 w-20 rounded-full border-2 border-yellow-300 bg-white object-contain p-1 shadow-lg" />
+        <div className="text-left">
+          <h1 className="text-2xl font-black leading-tight tracking-wide text-red-100 drop-shadow sm:text-3xl">JAY AMBE</h1>
+          <p className="text-lg font-extrabold leading-tight text-white sm:text-xl">DATA ENTRY APP</p>
+          <span className="mt-2 inline-block rounded-full bg-yellow-300 px-3 py-1 text-xs font-black text-blue-950">SIMPLE • FAST • RELIABLE</span>
         </div>
       </div>
     </div>
-
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {sections.map(({ title, description, icon: Icon, tab, category, card, soft, ink, ring }) => (
-        <button
-          key={tab}
-          type="button"
-          onClick={() => onSelectCategory(category)}
-          className={`group relative flex min-h-36 items-center justify-between overflow-hidden rounded-2xl border border-white bg-white p-5 text-left shadow-md transition duration-200 hover:-translate-y-1 hover:shadow-xl ${ring}`}
-        >
-          <span className={`absolute inset-x-0 top-0 h-2 bg-gradient-to-r ${card}`} />
-          <span className="flex items-center gap-4">
-            <span className={`flex h-16 w-16 items-center justify-center rounded-2xl ${soft} ${ink} shadow-inner`}>
-              <Icon className="h-8 w-8" />
-            </span>
-            <span>
-              <span className={`block text-lg font-extrabold ${ink}`}>{title}</span>
-              <span className="mt-1 block text-sm text-gray-500">{description}</span>
-              <span className={`mt-3 inline-flex rounded-full bg-gradient-to-r ${card} px-3 py-1 text-xs font-bold text-white shadow-sm`}>OPEN FORM</span>
-            </span>
-          </span>
-          <span className={`flex h-9 w-9 items-center justify-center rounded-full ${soft} ${ink}`}><ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" /></span>
-        </button>
-      ))}
+    <div className="relative grid grid-cols-2 gap-3 sm:gap-5">
+      {sections.map(({ title, description, icon: Icon, tab, category }) => {
+        const theme = {
+          'RETAIL_SHOP': 'from-lime-400 via-green-500 to-green-800',
+          'MECHANIC': 'from-sky-400 via-blue-600 to-blue-900',
+          'REBORER': 'from-amber-400 via-orange-500 to-red-600',
+          'ID_DATA': 'from-fuchsia-500 via-purple-600 to-violet-900',
+        }[category] || 'from-blue-500 to-indigo-800';
+        return (
+          <button key={tab} type="button" onClick={() => onSelectCategory(category)}
+            className={`group relative flex min-h-44 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/90 bg-gradient-to-br ${theme} p-3 text-center text-white shadow-[0_7px_0_rgba(15,23,42,.25)] transition duration-200 active:translate-y-1 active:shadow-md hover:brightness-105`}>
+            <span className="absolute inset-1 rounded-[1.25rem] border border-white/30" />
+            <Icon className="relative mb-2 h-12 w-12 drop-shadow-lg sm:h-14 sm:w-14" strokeWidth={2.5} />
+            <span className="relative text-base font-black leading-tight drop-shadow sm:text-xl">{title}</span>
+            <span className="relative mt-1 text-[11px] font-semibold text-white/90 sm:text-xs">{description}</span>
+            <span className="relative mt-3 rounded-full border border-white/50 bg-white/20 px-3 py-1 text-[10px] font-extrabold tracking-wider">OPEN FORM</span>
+          </button>
+        );
+      })}
+    </div>
+    <div className="relative mt-5 rounded-2xl border-2 border-yellow-300 bg-gradient-to-r from-blue-950 via-indigo-900 to-blue-800 px-3 py-3 text-center shadow-lg">
+      <p className="font-serif text-lg font-bold italic text-yellow-300">Welcome to</p>
+      <p className="text-base font-black text-white sm:text-xl">Jay Ambe Data Entry App</p>
     </div>
   </div>
 );
