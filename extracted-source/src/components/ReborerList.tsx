@@ -32,6 +32,7 @@ export const ReborerList: React.FC<ReborerListProps> = ({ onEditReborer, onAddNe
   const [availableSegments, setAvailableSegments] = useState<string[]>([]);
   const [expandedReborerId, setExpandedReborerId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activerebId, setActiverebId] = useState<string | null>(null);
 
   // Manage employee modal for specific reborer
   const [activeReborerForModal, setActiveReborerForModal] = useState<Reborer | null>(null);
@@ -177,7 +178,7 @@ export const ReborerList: React.FC<ReborerListProps> = ({ onEditReborer, onAddNe
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-bold text-base text-gray-900">{reb.repoweringName}</h3>
+                        <button type="button" onClick={() => setActiverebId(activerebId === reb.id ? null : reb.id)} className="text-left font-bold text-base text-blue-900 underline decoration-dotted underline-offset-4">{reb.repoweringName}</button>
                         {reb.segment && (
                           <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">
                             {reb.segment}
@@ -214,43 +215,12 @@ export const ReborerList: React.FC<ReborerListProps> = ({ onEditReborer, onAddNe
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2 self-start shrink-0">
-                      <a
-                        href={`tel:${reb.ownerMobileNumber}`}
-                        className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition"
-                        title="Call Reborer"
-                      >
-                        <Phone className="w-4 h-4" />
-                      </a>
-                      <a
-                        href={`https://wa.me/91${reb.ownerMobileNumber}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition"
-                        title="WhatsApp"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                      </a>
-                      <button
-                        onClick={() => onEditReborer(reb.id)}
-                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl font-semibold text-xs transition flex items-center gap-1"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDeleteConfirm({
-                            isOpen: true,
-                            reborerId: reb.id,
-                            repoweringName: reb.repoweringName,
-                          })
-                        }
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    {activerebId === reb.id && (
+                    <div className="flex items-center gap-2 self-start shrink-0">
+                      <button onClick={() => onEditReborer(reb.id)} className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white">EDIT</button>
+                      <button onClick={() => setDeleteConfirm({ isOpen: true, reborerId: reb.id, repoweringName: reb.repoweringName })} className="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white">DELETE</button>
                     </div>
+                  )}
                   </div>
 
                   {/* Work in Employee Bar */}
