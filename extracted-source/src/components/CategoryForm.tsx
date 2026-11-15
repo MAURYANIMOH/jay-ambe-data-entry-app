@@ -726,7 +726,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       )}
 
       {/* FORM CARD */}
-      <form onSubmit={handleSubmit} className={`rounded-2xl shadow-md border-t-4 p-4 sm:p-6 space-y-6 ${category === 'RETAIL_SHOP' ? 'bg-gradient-to-b from-emerald-50/70 to-white border-emerald-500' : category === 'MECHANIC' ? 'bg-gradient-to-b from-blue-50/70 to-white border-blue-500' : category === 'REBORER' ? 'bg-gradient-to-b from-orange-50/70 to-white border-orange-500' : 'bg-gradient-to-b from-violet-50/70 to-white border-violet-500'}`}>
+      <form onSubmit={handleSubmit} className={`rounded-2xl shadow-lg border-t-4 p-4 sm:p-6 space-y-6 [&_input]:border-2 [&_input]:border-slate-200 [&_input]:bg-white [&_input]:shadow-sm [&_input]:transition [&_input:focus]:border-indigo-500 [&_input:focus]:ring-2 [&_input:focus]:ring-indigo-100 [&_select]:border-2 [&_select]:border-slate-200 [&_select]:bg-white [&_select]:shadow-sm [&_textarea]:border-2 [&_textarea]:border-slate-200 [&_textarea]:bg-white [&_textarea]:shadow-sm ${category === 'RETAIL_SHOP' ? 'bg-gradient-to-b from-emerald-50/70 to-white border-emerald-500' : category === 'MECHANIC' ? 'bg-gradient-to-b from-blue-50/70 to-white border-blue-500' : category === 'REBORER' ? 'bg-gradient-to-b from-orange-50/70 to-white border-orange-500' : 'bg-gradient-to-b from-violet-50/70 to-white border-violet-500'}`}>
         {/* ========================================================
             CATEGORY 1: RETAIL SHOP FIELDS
             ======================================================== */}
