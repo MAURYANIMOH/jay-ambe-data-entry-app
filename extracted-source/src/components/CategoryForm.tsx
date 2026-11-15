@@ -105,7 +105,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [shopMobile, setShopMobile] = useState('');
   const [shopAddress, setShopAddress] = useState('');
   const [shopDOB, setShopDOB] = useState('');
-  const [shopSegment, setShopSegment] = useState('');
+  const [shopSegment, setShopSegment] = useState<string[]>([]);
   const [shopLinkedMechanicIds, setShopLinkedMechanicIds] = useState<string[]>([]);
 
   // ----------------------------------------
@@ -130,7 +130,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const [reborerAddress, setReborerAddress] = useState('');
   const [reborerDOB, setReborerDOB] = useState('');
   const [reborerLinkedEmployeeIds, setReborerLinkedEmployeeIds] = useState<string[]>([]);
-  const [reborerSegment, setReborerSegment] = useState('');
+  const [reborerSegment, setReborerSegment] = useState<string[]>([]);
   const [reborerRemark, setReborerRemark] = useState('');
 
   // ----------------------------------------
@@ -175,10 +175,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     const list = await dbService.getSegments();
     setAvailableSegments(list);
     if (list.length > 0 && !shopSegment) {
-      setShopSegment(list[0]);
+      setShopSegment([list[0]]);
     }
     if (list.length > 0 && !reborerSegment) {
-      setReborerSegment(list[0]);
+      setReborerSegment([list[0]]);
     }
   };
 
@@ -196,7 +196,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           setShopMobile(record.mobileNumber);
           setShopAddress(record.address);
           setShopDOB(record.dateOfBirth || '');
-          setShopSegment(record.segment || '');
+          setShopSegment(record.segment ? record.segment.split(',').map((v) => v.trim()).filter(Boolean) : []);
           const links = await dbService.getLinksForShop(id);
           setShopLinkedMechanicIds(links.map((l) => l.mechanicId));
         }
@@ -227,7 +227,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           setReborerMobile(record.ownerMobileNumber);
           setReborerAddress(record.address);
           setReborerDOB(record.dateOfBirth || '');
-          setReborerSegment(record.segment || '');
+          setReborerSegment(record.segment ? record.segment.split(',').map((v) => v.trim()).filter(Boolean) : []);
           setReborerRemark(record.remark || '');
           const links = await dbService.getLinksForReborer(id);
           setReborerLinkedEmployeeIds(links.map((l) => l.employeeId));
@@ -298,8 +298,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     if (!newSegmentInput.trim()) return;
     const updated = await dbService.addSegment(newSegmentInput.trim());
     setAvailableSegments(updated);
-    if (category === 'RETAIL_SHOP') setShopSegment(newSegmentInput.trim());
-    if (category === 'REBORER') setReborerSegment(newSegmentInput.trim());
+    if (category === 'RETAIL_SHOP') setShopSegment((current) => [...new Set([...current, newSegmentInput.trim()])]);
+    if (category === 'REBORER') setReborerSegment((current) => [...new Set([...current, newSegmentInput.trim()])]);
     setNewSegmentInput('');
     setShowAddSegmentModal(false);
   };
@@ -357,7 +357,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   // COMMON BUTTON ACTION 1: SUBMIT
   // Validate, save to correct database, clear form, show success
   // ========================================================
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent, clearAfterSave = true) => {
     if (e) e.preventDefault();
 
     // ------------------- CATEGORY 1: RETAIL SHOP -------------------
@@ -392,7 +392,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         mobileNumber: shopMobile.trim(),
         address: shopAddress.trim(),
         dateOfBirth: shopDOB || undefined,
-        segment: shopSegment || availableSegments[0] || 'General',
+        segment: shopSegment.join(', ') || availableSegments[0] || 'General',
         createdAt: currentEditId ? (await dbService.getRetailShopById(shopId))?.createdAt || Date.now() : Date.now(),
         updatedAt: Date.now(),
       };
@@ -417,8 +417,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           ? `Retail Shop "${shopRecord.shopName}" updated successfully!`
           : `Retail Shop "${shopRecord.shopName}" registered successfully with ${shopLinkedMechanicIds.length} connected mechanic(s)!`
       );
-      handleCancel();
-      if (onFormSubmitted) onFormSubmitted();
+      if (clearAfterSave) {
+        handleCancel();
+        if (onFormSubmitted) onFormSubmitted();
+      }
       return;
     }
 
@@ -509,7 +511,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         ownerMobileNumber: reborerMobile.trim(),
         address: reborerAddress.trim(),
         dateOfBirth: reborerDOB || undefined,
-        segment: reborerSegment || availableSegments[0] || 'General',
+        segment: reborerSegment.join(', ') || availableSegments[0] || 'General',
         remark: reborerRemark.trim() || undefined,
         createdAt: currentEditId ? (await dbService.getReborerById(rebId))?.createdAt || Date.now() : Date.now(),
         updatedAt: Date.now(),
@@ -851,32 +853,21 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
               />
             </div>
 
-            {/* Field 6: Segment (Configurable dropdown) */}
+            {/* Field 6: Selection (multiple choices allowed) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-gray-700">
-                    6. Segment (Configurable)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowAddSegmentModal(true)}
-                    className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-1"
-                  >
-                    <Plus className="w-3 h-3" /> Add Segment
+                  <label className="text-xs font-semibold text-gray-700">6. Selection (Select one or more)</label>
+                  <button type="button" onClick={() => setShowAddSegmentModal(true)} className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-1">
+                    <Plus className="w-3 h-3" /> Add Selection
                   </button>
                 </div>
-                <select
-                  value={shopSegment}
-                  onChange={(e) => setShopSegment(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 text-sm outline-hidden bg-white"
-                >
-                  {availableSegments.map((seg) => (
-                    <option key={seg} value={seg}>
-                      {seg}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex flex-wrap gap-2 rounded-xl border border-emerald-200 bg-white p-3">
+                  {availableSegments.map((seg) => {
+                    const checked = shopSegment.includes(seg);
+                    return <button key={seg} type="button" onClick={() => setShopSegment((current) => checked ? current.filter((v) => v !== seg) : [...current, seg])} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${checked ? 'border-emerald-700 bg-emerald-700 text-white' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>{seg}{checked ? ' ✓' : ''}</button>;
+                  })}
+                </div>
               </div>
 
               {/* Field 7: Connected Mechanics (Popup and multi-select linking) */}
@@ -1181,22 +1172,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                 />
               </div>
 
-              {/* Field 6: Segment (Configurable dropdown) */}
+              {/* Field 6: Selection (multiple choices allowed) */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  6. Segment (Configurable)
-                </label>
-                <select
-                  value={reborerSegment}
-                  onChange={(e) => setReborerSegment(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 text-sm outline-hidden bg-white"
-                >
-                  {availableSegments.map((seg) => (
-                    <option key={seg} value={seg}>
-                      {seg}
-                    </option>
-                  ))}
-                </select>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">6. Selection (Select one or more)</label>
+                <div className="flex flex-wrap gap-2 rounded-xl border border-orange-200 bg-white p-3">
+                  {availableSegments.map((seg) => {
+                    const checked = reborerSegment.includes(seg);
+                    return <button key={seg} type="button" onClick={() => setReborerSegment((current) => checked ? current.filter((v) => v !== seg) : [...current, seg])} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${checked ? 'border-orange-700 bg-orange-600 text-white' : 'border-gray-200 bg-gray-50 text-gray-700'}`}>{seg}{checked ? ' ✓' : ''}</button>;
+                  })}
+                </div>
               </div>
             </div>
 
@@ -1472,83 +1456,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           )}
         </section>
 
-        {/* ========================================================
-            COMMON BUTTONS (EVERY CATEGORY MUST HAVE ALL 6):
-            1. SUBMIT, 2. EDIT, 3. DELETE, 4. SEARCH, 5. CLEAR, 6. CANCEL
-            ======================================================== */}
-        <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2.5">
-          {/* Left action group: Submit and Edit */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* 1. SUBMIT */}
-            <button
-              type="submit"
-              className="px-5 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm rounded-xl transition shadow-sm flex items-center gap-2"
-            >
-              <Check className="w-4 h-4" />
-              {currentEditId ? 'UPDATE RECORD' : 'SUBMIT'}
-            </button>
-
-            {/* 2. EDIT */}
-            <button
-              type="button"
-              onClick={() => setIsRecordSelectModalOpen(true)}
-              className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm rounded-xl transition shadow-xs flex items-center gap-1.5"
-              title="Select a record to edit"
-            >
-              <Edit3 className="w-4 h-4" />
-              EDIT
-            </button>
-
-            {/* 3. DELETE */}
-            <button
-              type="button"
-              onClick={handleDelete}
-              disabled={!currentEditId}
-              className={`px-4 py-2.5 font-semibold text-sm rounded-xl transition shadow-xs flex items-center gap-1.5 ${
-                currentEditId
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              }`}
-              title="Delete currently loaded record"
-            >
-              <Trash2 className="w-4 h-4" />
-              DELETE
-            </button>
-          </div>
-
-          {/* Right action group: Search, Clear, Cancel */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* 4. SEARCH */}
-            <button
-              type="button"
-              onClick={() => setIsSearchModalOpen(true)}
-              className="px-4 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm rounded-xl transition shadow-xs flex items-center gap-1.5"
-            >
-              <Search className="w-4 h-4" />
-              SEARCH
-            </button>
-
-            {/* 5. CLEAR */}
-            <button
-              type="button"
-              onClick={handleClear}
-              className="px-4 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-semibold text-sm rounded-xl transition shadow-xs flex items-center gap-1.5"
-              title="Clear only current form"
-            >
-              <RotateCcw className="w-4 h-4" />
-              CLEAR
-            </button>
-
-            {/* 6. CANCEL */}
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-4 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-xl transition shadow-xs flex items-center gap-1.5"
-            >
-              <XCircle className="w-4 h-4" />
-              CANCEL
-            </button>
-          </div>
+        {/* Save keeps the form open; Submit saves and clears it. */}
+        <div className="pt-4 border-t border-gray-100 grid grid-cols-2 gap-3">
+          <button type="button" onClick={() => void handleSubmit(undefined, false)} className="w-full rounded-xl bg-amber-500 px-5 py-3 text-sm font-extrabold text-white shadow-md hover:bg-amber-600 flex items-center justify-center gap-2">
+            <Check className="h-4 w-4" /> SAVE
+          </button>
+          <button type="submit" className="w-full rounded-xl bg-emerald-700 px-5 py-3 text-sm font-extrabold text-white shadow-md hover:bg-emerald-800 flex items-center justify-center gap-2">
+            <Check className="h-4 w-4" /> SUBMIT
+          </button>
         </div>
       </form>
 
