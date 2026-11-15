@@ -29,6 +29,7 @@ export const MechanicList: React.FC<MechanicListProps> = ({ onEditMechanic, onAd
   const [selectedSegment, setSelectedSegment] = useState<string>('ALL');
   const [availableSegments, setAvailableSegments] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activemechId, setActivemechId] = useState<string | null>(null);
 
   // Delete modal
   const [deleteConfirm, setDeleteConfirm] = useState<{
@@ -173,7 +174,7 @@ export const MechanicList: React.FC<MechanicListProps> = ({ onEditMechanic, onAd
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-bold text-base text-gray-900">{mech.garageName}</h3>
+                      <button type="button" onClick={() => setActivemechId(activemechId === mech.id ? null : mech.id)} className="text-left font-bold text-base text-blue-900 underline decoration-dotted underline-offset-4">{mech.garageName}</button>
                       <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-mono">
                         ID: {mech.id}
                       </span>
@@ -245,43 +246,12 @@ export const MechanicList: React.FC<MechanicListProps> = ({ onEditMechanic, onAd
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-wrap items-center gap-2 self-start shrink-0">
-                    <a
-                      href={`tel:${mech.ownerMobileNumber}`}
-                      className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition"
-                      title="Call Owner"
-                    >
-                      <Phone className="w-4 h-4" />
-                    </a>
-                    <a
-                      href={`https://wa.me/91${mech.ownerMobileNumber}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition"
-                      title="WhatsApp"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                    </a>
-                    <button
-                      onClick={() => onEditMechanic(mech.id)}
-                      className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl font-semibold text-xs transition flex items-center gap-1"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() =>
-                        setDeleteConfirm({
-                          isOpen: true,
-                          mechId: mech.id,
-                          garageName: mech.garageName,
-                        })
-                      }
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {activemechId === mech.id && (
+                    <div className="flex items-center gap-2 self-start shrink-0">
+                      <button onClick={() => onEditMechanic(mech.id)} className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white">EDIT</button>
+                      <button onClick={() => setDeleteConfirm({ isOpen: true, mechId: mech.id, garageName: mech.garageName })} className="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white">DELETE</button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
