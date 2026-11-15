@@ -479,8 +479,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           ? `Mechanic "${mechRecord.garageName}" updated successfully!`
           : `Mechanic "${mechRecord.garageName}" registered successfully!`
       );
-      handleCancel();
-      if (onFormSubmitted) onFormSubmitted();
+      if (clearAfterSave) {
+        handleCancel();
+        if (onFormSubmitted) onFormSubmitted();
+      }
       return;
     }
 
@@ -535,8 +537,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           ? `Reborer "${rebRecord.repoweringName}" updated successfully!`
           : `Reborer "${rebRecord.repoweringName}" saved with ${reborerLinkedEmployeeIds.length} employee(s) linked!`
       );
-      handleCancel();
-      if (onFormSubmitted) onFormSubmitted();
+      if (clearAfterSave) {
+        handleCancel();
+        if (onFormSubmitted) onFormSubmitted();
+      }
       return;
     }
 
@@ -621,8 +625,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           ? `ID Record for "${idRecord.firmName}" updated successfully!`
           : `ID Record for "${idRecord.firmName}" encrypted and saved securely!`
       );
-      handleCancel();
-      if (onFormSubmitted) onFormSubmitted();
+      if (clearAfterSave) {
+        handleCancel();
+        if (onFormSubmitted) onFormSubmitted();
+      }
       return;
     }
   };
