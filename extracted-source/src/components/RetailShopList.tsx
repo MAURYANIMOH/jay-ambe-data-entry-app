@@ -33,6 +33,7 @@ export const RetailShopList: React.FC<RetailShopListProps> = ({ onEditShop, onAd
   const [availableSegments, setAvailableSegments] = useState<string[]>([]);
   const [expandedShopId, setExpandedShopId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeshopId, setActiveshopId] = useState<string | null>(null);
 
   // Manage mechanics modal from list
   const [activeShopForModal, setActiveShopForModal] = useState<RetailShop | null>(null);
@@ -178,7 +179,7 @@ export const RetailShopList: React.FC<RetailShopListProps> = ({ onEditShop, onAd
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-bold text-base text-gray-900">{shop.shopName}</h3>
+                        <button type="button" onClick={() => setActiveshopId(activeshopId === shop.id ? null : shop.id)} className="text-left font-bold text-base text-blue-900 underline decoration-dotted underline-offset-4">{shop.shopName}</button>
                         {shop.segment && (
                           <span className="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">
                             {shop.segment}
@@ -213,45 +214,12 @@ export const RetailShopList: React.FC<RetailShopListProps> = ({ onEditShop, onAd
                     </div>
 
                     {/* Quick Call / Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-2 self-start shrink-0">
-                      <a
-                        href={`tel:${shop.mobileNumber}`}
-                        className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition"
-                        title="Call Shop"
-                      >
-                        <Phone className="w-4 h-4" />
-                      </a>
-                      <a
-                        href={`https://wa.me/91${shop.mobileNumber}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl transition"
-                        title="WhatsApp"
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                      </a>
-                      <button
-                        onClick={() => onEditShop(shop.id)}
-                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl font-semibold text-xs transition flex items-center gap-1"
-                        title="Edit Shop"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() =>
-                          setDeleteConfirm({
-                            isOpen: true,
-                            shopId: shop.id,
-                            shopName: shop.shopName,
-                          })
-                        }
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition"
-                        title="Delete Shop"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                    {activeshopId === shop.id && (
+                    <div className="flex items-center gap-2 self-start shrink-0">
+                      <button onClick={() => onEditShop(shop.id)} className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white">EDIT</button>
+                      <button onClick={() => setDeleteConfirm({ isOpen: true, shopId: shop.id, shopName: shop.shopName })} className="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white">DELETE</button>
                     </div>
+                  )}
                   </div>
 
                   {/* Connected Mechanics Bar */}
