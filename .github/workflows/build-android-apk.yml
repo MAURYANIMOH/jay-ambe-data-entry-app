@@ -74,15 +74,23 @@ jobs:
           test -n "$KEY_PASSWORD" || (echo "Missing ANDROID_KEY_PASSWORD secret" && exit 1)
           printf '%s' "$KEYSTORE_B64" | tr -d '[:space:]' | base64 --decode > "$RUNNER_TEMP/jayambe-release.jks"
           test -s "$RUNNER_TEMP/jayambe-release.jks" || (echo "Decoded keystore is empty" && exit 1)
+          echo "Decoded keystore diagnostics (no secret values):"
+          wc -c "$RUNNER_TEMP/jayambe-release.jks"
+          file "$RUNNER_TEMP/jayambe-release.jks" || true
+          od -An -tx1 -N8 "$RUNNER_TEMP/jayambe-release.jks"
           echo "Detecting keystore format..."
-          if keytool -list -keystore "$RUNNER_TEMP/jayambe-release.jks" -storetype JKS -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+          if keytool -list -keystore "$RUNNER_TEMP/jayambe-release.jks" -storetype JKS -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>"$RUNNER_TEMP/keytool-jks-error.log"; then
             echo "KEYSTORE_TYPE=JKS" >> "$GITHUB_ENV"
             echo "Keystore validated as JKS."
-          elif keytool -list -keystore "$RUNNER_TEMP/jayambe-release.jks" -storetype PKCS12 -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+          elif keytool -list -keystore "$RUNNER_TEMP/jayambe-release.jks" -storetype PKCS12 -storepass "$KEYSTORE_PASSWORD" >/dev/null 2>"$RUNNER_TEMP/keytool-pkcs12-error.log"; then
             echo "KEYSTORE_TYPE=PKCS12" >> "$GITHUB_ENV"
             echo "Keystore validated as PKCS12."
           else
-            echo "::error::The uploaded keystore cannot be opened with the saved store password. Check the original keystore file and ANDROID_KEYSTORE_PASSWORD secret."
+            echo "JKS validation diagnostic:"
+            sed -E 's/(password|passphrase)[^[:cntrl:]]*/\1 [REDACTED]/Ig' "$RUNNER_TEMP/keytool-jks-error.log" | head -8
+            echo "PKCS12 validation diagnostic:"
+            sed -E 's/(password|passphrase)[^[:cntrl:]]*/\1 [REDACTED]/Ig' "$RUNNER_TEMP/keytool-pkcs12-error.log" | head -8
+            echo "::error::The decoded keystore was not accepted. Diagnostics above distinguish a file-format issue from a password issue; no secret values were printed."
             exit 1
           fi
 
