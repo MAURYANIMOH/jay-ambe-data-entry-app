@@ -735,14 +735,20 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
       {/* FORM CARD */}
       <form onSubmit={handleSubmit} className={`rounded-2xl shadow-lg border-t-4 p-4 sm:p-6 space-y-6 [&_input]:border-2 [&_input]:border-slate-200 [&_input]:bg-white [&_input]:shadow-sm [&_input]:transition [&_input:focus]:border-indigo-500 [&_input:focus]:ring-2 [&_input:focus]:ring-indigo-100 [&_select]:border-2 [&_select]:border-slate-200 [&_select]:bg-white [&_select]:shadow-sm [&_textarea]:border-2 [&_textarea]:border-slate-200 [&_textarea]:bg-white [&_textarea]:shadow-sm ${category === 'RETAIL_SHOP' ? 'bg-gradient-to-b from-emerald-50/70 to-white border-emerald-500' : category === 'MECHANIC' ? 'bg-gradient-to-b from-blue-50/70 to-white border-blue-500' : category === 'REBORER' ? 'bg-gradient-to-b from-orange-50/70 to-white border-orange-500' : 'bg-gradient-to-b from-violet-50/70 to-white border-violet-500'}`}>
-        <div className={`relative -mx-1 overflow-hidden rounded-2xl border-2 border-white px-4 py-4 text-white shadow-lg ${category === 'RETAIL_SHOP' ? 'bg-gradient-to-r from-green-700 via-green-600 to-lime-500' : category === 'MECHANIC' ? 'bg-gradient-to-r from-blue-950 via-blue-700 to-sky-500' : category === 'REBORER' ? 'bg-gradient-to-r from-red-700 via-orange-600 to-amber-400' : 'bg-gradient-to-r from-violet-950 via-purple-700 to-fuchsia-500'}`}>
-          <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/50 bg-white/20 shadow-inner">
+        <div className={`relative -mx-1 min-h-40 overflow-hidden rounded-2xl border-2 border-white text-white shadow-lg ${category === 'RETAIL_SHOP' ? 'bg-emerald-900' : category === 'MECHANIC' ? 'bg-blue-950' : category === 'REBORER' ? 'bg-orange-900' : 'bg-violet-950'}`}>
+          <img
+            src={category === 'RETAIL_SHOP' ? 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=85' : category === 'MECHANIC' ? 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=1200&auto=format&fit=crop&q=85' : category === 'REBORER' ? 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&auto=format&fit=crop&q=85' : 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1200&auto=format&fit=crop&q=85'}
+            alt={category === 'RETAIL_SHOP' ? 'Retail Shop' : category === 'MECHANIC' ? 'Mechanic Workshop' : category === 'REBORER' ? 'Engine Reboring' : 'ID Data'}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className={`absolute inset-0 ${category === 'RETAIL_SHOP' ? 'bg-gradient-to-r from-emerald-950/95 via-emerald-900/75 to-transparent' : category === 'MECHANIC' ? 'bg-gradient-to-r from-blue-950/95 via-blue-900/75 to-transparent' : category === 'REBORER' ? 'bg-gradient-to-r from-orange-950/95 via-orange-900/75 to-transparent' : 'bg-gradient-to-r from-violet-950/95 via-violet-900/75 to-transparent'}`} />
+          <div className="relative flex min-h-40 items-center gap-3 px-4 py-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/50 bg-white/20 shadow-inner backdrop-blur-sm">
               {category === 'RETAIL_SHOP' ? <Store className="h-8 w-8" /> : category === 'MECHANIC' ? <Wrench className="h-8 w-8" /> : category === 'REBORER' ? <RefreshCw className="h-8 w-8" /> : <KeyRound className="h-8 w-8" />}
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-[.2em] text-white/80">JAY AMBE DATA ENTRY APP</p>
-              <h2 className="text-xl font-black leading-tight sm:text-2xl">{category === 'RETAIL_SHOP' ? 'Retail Shop' : category === 'MECHANIC' ? 'Mechanic' : category === 'REBORER' ? 'REBORER' : 'ID Data'}</h2>
+              <h2 className="text-xl font-black leading-tight sm:text-2xl">{category === 'RETAIL_SHOP' ? 'Retail Shop' : category === 'MECHANIC' ? 'Mechanic' : category === 'REBORER' ? 'REBORER' : 'ID Data'} Data Entry Form</h2>
               <p className="mt-1 text-xs font-semibold text-white/90">Enter details • Save • Manage Records</p>
             </div>
           </div>
