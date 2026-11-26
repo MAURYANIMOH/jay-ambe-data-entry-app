@@ -1,5 +1,5 @@
 import React from 'react';
-import { Store, Wrench, RefreshCw, KeyRound, ArrowRight } from 'lucide-react';
+import { Store, Wrench, RefreshCw, KeyRound } from 'lucide-react';
 import { CategoryType } from '../types';
 
 interface DashboardProps {
@@ -10,10 +10,10 @@ interface DashboardProps {
 }
 
 const sections = [
-  { title: 'Retail Shop', description: 'Retailer Details', icon: Store, tab: 'retail_shops', category: 'RETAIL_SHOP' as CategoryType, card: 'from-emerald-500 to-teal-700', soft: 'bg-emerald-50', ink: 'text-emerald-800', ring: 'hover:border-emerald-400' },
-  { title: 'Mechanic', description: 'Mechanic Details', icon: Wrench, tab: 'mechanics', category: 'MECHANIC' as CategoryType, card: 'from-blue-500 to-indigo-700', soft: 'bg-blue-50', ink: 'text-blue-800', ring: 'hover:border-blue-400' },
-  { title: 'REBORER', description: 'Reborer Details', icon: RefreshCw, tab: 'reborers', category: 'REBORER' as CategoryType, card: 'from-orange-500 to-rose-600', soft: 'bg-orange-50', ink: 'text-orange-800', ring: 'hover:border-orange-400' },
-  { title: 'ID Data', description: 'ID Details', icon: KeyRound, tab: 'id_data', category: 'ID_DATA' as CategoryType, card: 'from-violet-500 to-purple-700', soft: 'bg-violet-50', ink: 'text-violet-800', ring: 'hover:border-violet-400' },
+  { title: 'Retail Shop', description: 'Retailer Details', tab: 'retail_shops', category: 'RETAIL_SHOP' as CategoryType, image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&auto=format&fit=crop&q=85', theme: 'from-lime-500/95 via-green-600/90 to-green-900/95' },
+  { title: 'Mechanic', description: 'Garage & Mechanic Details', tab: 'mechanics', category: 'MECHANIC' as CategoryType, image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=900&auto=format&fit=crop&q=85', theme: 'from-sky-500/95 via-blue-700/90 to-blue-950/95' },
+  { title: 'REBORER', description: 'Engine Reboring Details', tab: 'reborers', category: 'REBORER' as CategoryType, image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=900&auto=format&fit=crop&q=85', theme: 'from-amber-500/95 via-orange-600/90 to-red-800/95' },
+  { title: 'ID Data', description: 'ID & Login Details', tab: 'id_data', category: 'ID_DATA' as CategoryType, image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=900&auto=format&fit=crop&q=85', theme: 'from-fuchsia-600/95 via-purple-700/90 to-violet-950/95' },
 ];
 
 export const Dashboard: React.FC<DashboardProps> = ({ onSelectCategory }) => (
@@ -30,24 +30,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onSelectCategory }) => (
       </div>
     </div>
     <div className="relative grid grid-cols-2 gap-3 sm:gap-5">
-      {sections.map(({ title, description, icon: Icon, tab, category }) => {
-        const theme = {
-          'RETAIL_SHOP': 'from-lime-400 via-green-500 to-green-800',
-          'MECHANIC': 'from-sky-400 via-blue-600 to-blue-900',
-          'REBORER': 'from-amber-400 via-orange-500 to-red-600',
-          'ID_DATA': 'from-fuchsia-500 via-purple-600 to-violet-900',
-        }[category] || 'from-blue-500 to-indigo-800';
-        return (
-          <button key={tab} type="button" onClick={() => onSelectCategory(category)}
-            className={`group relative flex min-h-44 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-white/90 bg-gradient-to-br ${theme} p-3 text-center text-white shadow-[0_7px_0_rgba(15,23,42,.25)] transition duration-200 active:translate-y-1 active:shadow-md hover:brightness-105`}>
-            <span className="absolute inset-1 rounded-[1.25rem] border border-white/30" />
-            <Icon className="relative mb-2 h-12 w-12 drop-shadow-lg sm:h-14 sm:w-14" strokeWidth={2.5} />
-            <span className="relative text-base font-black leading-tight drop-shadow sm:text-xl">{title}</span>
-            <span className="relative mt-1 text-[11px] font-semibold text-white/90 sm:text-xs">{description}</span>
-            <span className="relative mt-3 rounded-full border border-white/50 bg-white/20 px-3 py-1 text-[10px] font-extrabold tracking-wider">OPEN FORM</span>
-          </button>
-        );
-      })}
+      {sections.map(({ title, description, category, image, theme }) => (
+        <button key={category} type="button" onClick={() => onSelectCategory(category)}
+          className={`group relative flex min-h-48 flex-col items-center justify-end overflow-hidden rounded-3xl border-[3px] border-white/95 bg-gradient-to-br ${theme} p-3 text-center text-white shadow-[0_7px_0_rgba(15,23,42,.25)] transition duration-200 active:translate-y-1 active:shadow-md hover:brightness-105`}>
+          <img src={image} alt={title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
+          <span className="relative mb-1 rounded-2xl border border-white/60 bg-white/15 p-2 backdrop-blur-sm">
+            {category === 'RETAIL_SHOP' ? <Store className="h-10 w-10 drop-shadow-lg" /> : category === 'MECHANIC' ? <Wrench className="h-10 w-10 drop-shadow-lg" /> : category === 'REBORER' ? <RefreshCw className="h-10 w-10 drop-shadow-lg" /> : <KeyRound className="h-10 w-10 drop-shadow-lg" />}
+          </span>
+          <span className="relative text-base font-black leading-tight drop-shadow sm:text-xl">{title}</span>
+          <span className="relative mt-1 text-[11px] font-semibold text-white/95 sm:text-xs">{description}</span>
+          <span className="relative mt-2 rounded-full border border-white/60 bg-white/20 px-3 py-1 text-[10px] font-extrabold tracking-wider backdrop-blur-sm">OPEN FORM</span>
+        </button>
+      ))}
     </div>
     <div className="relative mt-5 rounded-2xl border-2 border-yellow-300 bg-gradient-to-r from-blue-950 via-indigo-900 to-blue-800 px-3 py-3 text-center shadow-lg">
       <p className="font-serif text-lg font-bold italic text-yellow-300">Welcome to</p>
